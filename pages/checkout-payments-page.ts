@@ -27,7 +27,7 @@ export class PaymentsPage {
         let calculatedOrderTotal = (itemPrice * quantity) + shippingPrice;
         const orderTotalText = await this.totalPrice.textContent()
 
-        let orderTotal = parseFloat(orderTotalText ? orderTotalText.replace("$", "").trim() : "");
+        let orderTotal = parseFloat(orderTotalText ? orderTotalText.replace("$", "").trim() : "0");
         expect(orderTotal).toEqual(calculatedOrderTotal)
 
     }
