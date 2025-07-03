@@ -33,6 +33,7 @@
             "isRandomlySelected": false,
             "quantity": "1",
             "discountCode": "20poff",
+            "discountRate": 0.20,
             "shippingDestination": "Netherlands",
             "shippingMethod": "Flat Rate"
         },
@@ -69,6 +70,7 @@
             "isRandomlySelected": false,
             "quantity": "2",
             "discountCode": "20poff",
+            "discountRate": 0.20,
             "shippingDestination": "Netherlands",
             "shippingMethod": "Flat Rate"
         },
@@ -90,6 +92,7 @@
             "isRandomlySelected": true,
             "quantity": "1",
             "discountCode": "20poff",
+            "discountRate": 0.20,
             "shippingDestination": "Netherlands",
             "shippingMethod": "Flat Rate"
         }

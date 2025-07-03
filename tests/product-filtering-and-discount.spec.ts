@@ -142,10 +142,15 @@ test.describe("Product filtering and checkout with applying discount", () => {
         await loader.waitForLoaders();
         await paymentsPage.VerifyThePaymentsPageOpened();
       });
-
+      let parsedQuantity = 0
       await test.step(`Verify that the order total cost is correct`, async () => {
-        const parsedQuantity = parseInt(product.quantity, 10);
+        parsedQuantity = parseInt(product.quantity, 10);
         await paymentsPage.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts);
+      });
+
+      await test.step(`Apply the discount code: ${product.discountCode} and verify the discounted price`, async () => {
+        await paymentsPage.applyDiscount(product.discountCode)
+        await paymentsPage.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts, product.discountRate);
       });
     });
   }
