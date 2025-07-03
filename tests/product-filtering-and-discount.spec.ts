@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import { PageNavigation } from "../pages/navigation";
 import { Cookies } from "../helpers/cookies";
 import { Filter, Filters } from "../pages/filters";
-import { TestData } from "../helpers/test-data";
 import { Ads } from "../helpers/ads";
 import { ProductListing } from "../pages/product-listing-page";
 import { ProductDetailsPage } from "../pages/product-details-page";
@@ -10,6 +9,7 @@ import { Basket } from "../pages/basket";
 import { ShippingPage } from "../pages/checkout-shipping-page";
 import { PaymentsPage } from "../pages/checkout-payments-page";
 import { Loader } from "../helpers/loader";
+import { products } from "../test-data/products.json";
 
 export interface Product {
   mainCategory: string;
@@ -32,8 +32,6 @@ let basket: Basket;
 let shippingPage: ShippingPage;
 let paymentsPage: PaymentsPage;
 let loader: Loader;
-
-const products: Product[] = TestData.getJson("products");
 
 test.describe("Product filtering and checkout with applying discount", () => {
   test.beforeEach("Visit the website", async ({ page, context }) => {

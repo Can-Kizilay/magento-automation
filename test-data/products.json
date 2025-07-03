@@ -1,97 +1,97 @@
-[
-    {
-        "mainCategory": "Men",
-        "category": "Tops",
-        "filters": [
-            {
-                "name": "Category",
-                "value": "Jackets",
-                "isProductVariant": false
-            },
-            {
-                "name": "Size",
-                "value": "XS",
-                "isProductVariant": true
-
-            },
-            {
-                "name": "color",
-                "value": "blue",
-                "isProductVariant": true
-            },
-            {
-                "name": "price",
-                "value": "$40.00 - $49.99",
-                "isProductVariant": false
-            },
-            {
-                "name": "eco collection",
-                "value": "yes",
-                "isProductVariant": false
-            }
-        ],
-        "isRandomlySelected": false,
-        "quantity": "1",
-        "discountCode": "20poff",
-        "shippingDestination": "Netherlands",   
-        "shippingMethod": "Flat Rate"
-
-    },
-    {
-        "mainCategory": "Women",
-        "category": "Tops",
-        "filters": [
-            {
-                "name": "Category",
-                "value": "Jackets",
-                "isProductVariant": false
-            },
-            {
-                "name": "Size",
-                "value": "XS",
-                "isProductVariant": true
-            },
-            {
-                "name": "color",
-                "value": "blue",
-                "isProductVariant": true
-            },
-            {
-                "name": "price",
-                "value": "$50.00 - $59.99",
-                "isProductVariant": false
-            },
-            {
-                "name": "eco collection",
-                "value": "no",
-                "isProductVariant": false
-            }
-        ],
-        "isRandomlySelected": false,
-        "quantity": "2",
-        "discountCode": "20poff",
-        "shippingDestination": "Netherlands",
-        "shippingMethod": "Flat Rate"
-    },
-    {
-        "mainCategory": "Gear",
-        "category": "Bags",
-        "filters": [
-            {
-                "name": "Activity",
-                "value": "Yoga",
-                "isProductVariant": false
-            },
-            {
-                "name": "price",
-                "value": "$30.00 - $39.99",
-                "isProductVariant": false
-            }
-        ],
-        "isRandomlySelected": true,
-        "quantity": "1",
-        "discountCode": "20poff",
-        "shippingDestination": "Netherlands",
-        "shippingMethod": "Flat Rate"
-    }
-]
+{
+    "products": [
+        {
+            "mainCategory": "Men",
+            "category": "Tops",
+            "filters": [
+                {
+                    "name": "Category",
+                    "value": "Jackets",
+                    "isProductVariant": false
+                },
+                {
+                    "name": "Size",
+                    "value": "XS",
+                    "isProductVariant": true
+                },
+                {
+                    "name": "color",
+                    "value": "blue",
+                    "isProductVariant": true
+                },
+                {
+                    "name": "price",
+                    "value": "$40.00 - $49.99",
+                    "isProductVariant": false
+                },
+                {
+                    "name": "eco collection",
+                    "value": "yes",
+                    "isProductVariant": false
+                }
+            ],
+            "isRandomlySelected": false,
+            "quantity": "1",
+            "discountCode": "20poff",
+            "shippingDestination": "Netherlands",
+            "shippingMethod": "Flat Rate"
+        },
+        {
+            "mainCategory": "Women",
+            "category": "Tops",
+            "filters": [
+                {
+                    "name": "Category",
+                    "value": "Jackets",
+                    "isProductVariant": false
+                },
+                {
+                    "name": "Size",
+                    "value": "XS",
+                    "isProductVariant": true
+                },
+                {
+                    "name": "color",
+                    "value": "blue",
+                    "isProductVariant": true
+                },
+                {
+                    "name": "price",
+                    "value": "$50.00 - $59.99",
+                    "isProductVariant": false
+                },
+                {
+                    "name": "eco collection",
+                    "value": "no",
+                    "isProductVariant": false
+                }
+            ],
+            "isRandomlySelected": false,
+            "quantity": "2",
+            "discountCode": "20poff",
+            "shippingDestination": "Netherlands",
+            "shippingMethod": "Flat Rate"
+        },
+        {
+            "mainCategory": "Gear",
+            "category": "Bags",
+            "filters": [
+                {
+                    "name": "Activity",
+                    "value": "Yoga",
+                    "isProductVariant": false
+                },
+                {
+                    "name": "price",
+                    "value": "$30.00 - $39.99",
+                    "isProductVariant": false
+                }
+            ],
+            "isRandomlySelected": true,
+            "quantity": "1",
+            "discountCode": "20poff",
+            "shippingDestination": "Netherlands",
+            "shippingMethod": "Flat Rate"
+        }
+    ]
+}

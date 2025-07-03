@@ -1,6 +1,5 @@
 import { BrowserContext } from "@playwright/test";
-import { test as baseTest } from "@playwright/test";
-import { TestData } from "../helpers/test-data";
+import { cookies } from "../test-data/cookies.json";
 
 interface Cookie {
   name: string;
@@ -9,7 +8,7 @@ interface Cookie {
   path?: string;
 }
 
-const cookieData: Cookie[] = TestData.getJson("cookies");
+const cookieData: Cookie[] = cookies
 
 export class Cookies {
   readonly context: BrowserContext;
