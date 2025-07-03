@@ -1,16 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from 'dotenv';
+import path from 'path';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+
 export default defineConfig({
   testDir: "./tests",
   /* Run tests in files in parallel */
@@ -26,7 +25,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "https://magento.softwaretestingboard.com",
+    baseURL: process.env.BASE_URL,
     testIdAttribute: "data-ui-id",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -54,10 +53,10 @@ export default defineConfig({
     // },
 
     /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
     // {
     //   name: 'Mobile Safari',
     //   use: { ...devices['iPhone 12'] },
@@ -73,11 +72,4 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

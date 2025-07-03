@@ -41,18 +41,6 @@ npm test
 
 This will execute the Playwright tests and generate a report.
 
-## Project Structure
-
-```
-.
-├── helpers/              # Helper functions for tests
-├── pages/                # Page Object Models
-├── tests/                # Test files
-├── test-data/            # Test data files
-├── package.json          # Project metadata and dependencies
-└── playwright.config.ts  # Playwright configuration
-```
-
 ## Dependencies
 
 - [Playwright](https://playwright.dev/): For browser automation and end-to-end testing.

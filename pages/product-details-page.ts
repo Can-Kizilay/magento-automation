@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import { Loader } from "../helpers/loader";
 
 export class ProductDetailsPage {
   readonly page: Page;
@@ -6,27 +7,28 @@ export class ProductDetailsPage {
   readonly productQuantity: Locator;
   readonly addToCartButton: Locator;
   readonly productPrice: Locator;
+  readonly loader: Loader;
 
   constructor(page: Page) {
     this.page = page;
     this.productTitle = this.page.getByTestId("page-title-wrapper");
     this.productQuantity = this.page.locator("#qty");
-    this.addToCartButton = this.page.locator("button[title='Add to Cart']");
+    this.addToCartButton = this.page.getByRole('button', { name: 'Add to Cart' })
     this.productPrice = this.page.locator(".product-info-main").locator(".price");
+    this.loader = new Loader(page);
   }
 
   async verifyCorrectProductPageOpened(productName: string) {
-
+    await this.loader.waitForLoaders()
+    await expect(this.productTitle).toBeVisible();
     await expect(this.productTitle).toHaveText(productName);
+    await expect(this.addToCartButton).toBeVisible(); // Ensure the button is visible before clicking
     await expect(this.addToCartButton).toBeEnabled(); // Ensure the button is enabled before clicking
-
   }
 
-  async selectProductVariant(variantName: string, variantValue: string) {
-    const variantContainer = this.page.locator(`[attribute-code=${variantName.toLocaleLowerCase()}]`);
-    const variantToSelect = variantContainer.getByLabel(variantValue);
+  async selectProductVariant(variantValue: string) {
+    const variantToSelect = this.page.getByRole('option', { name: variantValue })
 
-    await expect(variantContainer).toBeVisible();
     await expect(variantToSelect).toBeVisible();
     await variantToSelect.click();
   }

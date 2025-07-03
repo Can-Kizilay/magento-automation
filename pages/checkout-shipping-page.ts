@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { fakerNL } from '@faker-js/faker';
+import { Loader } from "../helpers/loader";
 
 export interface ShippingForm {
     email: string;
@@ -34,9 +35,11 @@ export class ShippingPage {
     readonly shippingMethodTable: Locator;
     readonly checkoutShippingLoaded: Locator;
     readonly nextButton: Locator;
+    readonly loader: Loader;
 
     constructor(page: Page) {
         this.page = page;
+        this.loader = new Loader(page);
 
         this.formContainer = this.page.locator("#checkout-step-shipping");
         this.loginForm = this.formContainer.locator(".form-login");
@@ -73,6 +76,7 @@ export class ShippingPage {
     }
 
     async verifyShippingAddressFormIsDisplayed() {
+        await this.loader.waitForLoaders()
         await expect(this.shippingAddressForm).toBeVisible();
     }
 
@@ -84,6 +88,7 @@ export class ShippingPage {
             await this.companyInput.fill(formData.company);
         }
         await this.countryInput.selectOption({ label: formData.country });
+        await this.loader.waitForLoaders() // Reloads fields after country selection
         await this.streetInput.fill(formData.street);
         await this.cityInput.fill(formData.city);
         if (formData.state) {
@@ -94,6 +99,7 @@ export class ShippingPage {
     }
 
     async selectShippingMethodandReturnCost(methodName: string) {
+        await this.loader.waitForLoaders()
         await this.checkoutShippingLoaded.waitFor({ state: "visible" })
         const shippingMethod = this.page.getByRole('radio', { name: methodName })
         await shippingMethod.click();
@@ -107,5 +113,6 @@ export class ShippingPage {
 
     async clickNextButton() {
         await this.nextButton.click();
+        await this.loader.waitForLoaders()
     }
 }

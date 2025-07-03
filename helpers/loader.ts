@@ -6,13 +6,11 @@ export class Loader {
 
   constructor(page: Page) {
     this.page = page;
-    this.loader = this.page.locator('loading-mask')
+    this.loader = this.page.locator('loading-mask');
 
   }
 
   async waitForLoaders() {
-    this.page.addLocatorHandler(this.loader, async () => {
-      await this.loader.waitFor({ state: "hidden", timeout: 30000 })
-    })
+    await this.loader.waitFor({ state: "hidden", timeout: 30000 });
   }
 }
