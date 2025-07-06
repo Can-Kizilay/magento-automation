@@ -30,7 +30,13 @@ export class PaymentsPage {
     }
 
     async verifyOrderTotal(itemPrice: number, quantity: number, shippingPrice: number, discount: number = 0) {
-        await this.loader.waitForLoaders()
+
+
+        if (discount > 0) {
+            await this.page.waitForTimeout(1000);
+            await this.page.waitForLoadState("networkidle");
+        }
+
         const productTotal = itemPrice * quantity
         const discountRate = (1 - discount)
 
