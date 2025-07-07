@@ -8,7 +8,7 @@ export class Ads {
   }
 
   async blockAds() {
-    await this.context.route("/*", (route) => {
+    await this.context.route("**/*", (route) => {
       const url = route.request().url();
 
       const adPatterns = [
