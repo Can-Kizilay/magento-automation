@@ -1,49 +1,61 @@
 import { test as base } from '@playwright/test';
-import { Basket } from "./basket";
-import { PaymentsPage } from "./checkout-payments-page";
-import { ShippingPage } from "./checkout-shipping-page";
-import { Filters } from "./filters";
-import { HomePage } from "./home-page";
-import { ProductDetailsPage } from "./product-details-page";
-import { ProductListing } from "./product-listing-page";
+import { Basket } from "../pages/common/basket";
+import { PaymentsPage } from '../pages/checkout/checkout-payments-page';
+import { ShippingPage } from '../pages/checkout/checkout-shipping-page';
+import { Filters } from "../pages/product-listing/filters";
+import { HomePage } from "../pages/common/home-page";
+import { Navigation } from '../pages/common/navigation';
+import { ProductDetailsPage } from "../pages/product-details/product-details-page";
+import { ProductListing } from "../pages/product-listing/product-listing-page";
 import { Ads } from '../helpers/ads';
-import { Loader } from '../helpers/loader';
 import { Cookies } from '../helpers/cookies';
 
 type PageList = {
+    // Page objects
+    homePage: HomePage;
+    navigation: Navigation
     basket: Basket;
     checkoutPayments: PaymentsPage;
     checkoutShipping: ShippingPage;
-    homePage: HomePage;
     pageFilters: Filters;
     productDetailsPage: ProductDetailsPage;
     productListing: ProductListing;
+    shippingPage: ShippingPage;
+    // Helper classes
     ads: Ads;
     cookies: Cookies;
-    loader: Loader;
-    shippingPage: ShippingPage;
 
 };
-
+// Extend the base test with the page objects
 export const test = base.extend<PageList>({
-    basket: async ({ page, context }, use) => {
-        await use(new Basket(page));
-    },
-    checkoutPayments: async ({ page }, use) => {
-        await use(new PaymentsPage(page));
-    },
-    checkoutShipping: async ({ page }, use) => {
-        await use(new ShippingPage(page));
-    },
     homePage: async ({ page }, use) => {
         await use(new HomePage(page));
     },
+
+    navigation: async ({ page }, use) => {
+        await use(new Navigation(page));
+    },
+
+    basket: async ({ page }, use) => {
+        await use(new Basket(page));
+    },
+
+    checkoutPayments: async ({ page }, use) => {
+        await use(new PaymentsPage(page));
+    },
+
+    checkoutShipping: async ({ page }, use) => {
+        await use(new ShippingPage(page));
+    },
+
     pageFilters: async ({ page }, use) => {
         await use(new Filters(page));
     },
+
     productDetailsPage: async ({ page }, use) => {
         await use(new ProductDetailsPage(page));
     },
+
     productListing: async ({ page }, use) => {
         await use(new ProductListing(page));
     },
@@ -55,12 +67,9 @@ export const test = base.extend<PageList>({
     ads: async ({ context }, use) => {
         await use(new Ads(context));
     },
-    loader: async ({ page }, use) => {
-        await use(new Loader(page));
-    },
+
     shippingPage: async ({ page }, use) => {
         await use(new ShippingPage(page));
     }
-
 });
 export { expect } from '@playwright/test';

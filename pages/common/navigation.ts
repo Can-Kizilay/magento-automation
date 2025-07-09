@@ -1,7 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { test } from "./handle-pages";
 
-export class HomePage {
+export class Navigation {
   readonly page: Page;
   readonly navigationMenuItem: Locator;
   readonly categoryFilter: Locator;
@@ -15,9 +14,6 @@ export class HomePage {
     this.mobileMenuHamburger = this.page.locator('span').filter({ hasText: 'Toggle Nav' }).first();
     this.mobileMenu = this.page.getByRole('tab', { name: 'Menu' });
 
-  }
-  async navigateToHomePage() {
-    await this.page.goto("/");
   }
 
   async clickNavigationMenuItem(itemName: string) {

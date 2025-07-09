@@ -1,5 +1,4 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { Loader } from "../helpers/loader";
 
 export class PaymentsPage {
     readonly page: Page
@@ -9,11 +8,9 @@ export class PaymentsPage {
     readonly discountHeading: Locator;
     readonly discountCode: Locator;
     readonly successMessage: Locator;
-    readonly loader: Loader;
 
     constructor(page: Page) {
         this.page = page;
-        this.loader = new Loader(page);
         this.summaryBlock = this.page.locator(".opc-block-summary")
         this.paymentGroup = this.page.locator(".payment-group")
         this.totalPrice = this.page.locator('[data-th="Order Total"]');
@@ -24,8 +21,6 @@ export class PaymentsPage {
     }
 
     async VerifyThePaymentsPageOpened() {
-        await this.loader.waitForLoaders()
-        await expect(this.loader.loader).toBeHidden()
         await expect(this.paymentGroup).toBeVisible()
     }
 
@@ -52,7 +47,6 @@ export class PaymentsPage {
         await this.discountCode.fill(discountCode);
         await this.discountCode.press('Enter');
         await expect(this.successMessage).toBeVisible();
-        await this.loader.waitForLoaders();
         await expect(this.discountCode).toBeDisabled();
     }
 }

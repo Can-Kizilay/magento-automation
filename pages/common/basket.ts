@@ -24,7 +24,6 @@ export class Basket {
     async verifyBasketIconQuantity(quantity: string) {
 
         await expect(this.basketIconCounter).toBeEnabled();
-
         await expect(this.basketIconCounter).toContainText(quantity); // Ensure the cart icon counter reflects the added quantity
     }
 

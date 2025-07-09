@@ -1,15 +1,6 @@
-import { HomePage } from "../pages/home-page";
-import { Cookies } from "../helpers/cookies";
-import { Filter, Filters } from "../pages/filters";
-import { Ads } from "../helpers/ads";
-import { ProductListing } from "../pages/product-listing-page";
-import { ProductDetailsPage } from "../pages/product-details-page";
-import { Basket } from "../pages/basket";
-import { ShippingPage } from "../pages/checkout-shipping-page";
-import { PaymentsPage } from "../pages/checkout-payments-page";
-import { Loader } from "../helpers/loader";
+import { Filter } from "../pages/product-listing/filters";
 import { products } from "../test-data/products.json";
-import { test, expect } from '../pages/handle-pages';
+import { test } from '../fixtures/page-objects';
 
 export interface Product {
   mainCategory: string;
@@ -22,111 +13,102 @@ export interface Product {
   shippingMethod: string;
 }
 
-let homePage: HomePage;
-let pageFilters: Filters;
-let cookies: Cookies;
-let ads: Ads;
-let productListing: ProductListing;
-let productDetailsPage: ProductDetailsPage;
-let basket: Basket;
-let shippingPage: ShippingPage;
-let paymentsPage: PaymentsPage;
-let loader: Loader;
 
 test.describe("Product filtering and checkout with applying discount", () => {
-  test.beforeEach("Visit the website", async ({ page, context }) => {
-    homePage = new HomePage(page);
-    cookies = new Cookies(context);
-    pageFilters = new Filters(page);
-    ads = new Ads(context);
-    productListing = new ProductListing(page);
-    productDetailsPage = new ProductDetailsPage(page);
-    basket = new Basket(page);
-    shippingPage = new ShippingPage(page);
-    paymentsPage = new PaymentsPage(page);
-    loader = new Loader(page);
+  test.beforeEach("Test setup", async ({ page, ads, cookies, homePage }) => {
 
-    await test.step("Block ads and handle cookies", async () => {
-      await ads.blockAds();
-      await cookies.handleCookies();
-      await page.addLocatorHandler(loader.loader, async () => {
-        await page.evaluate(() => loader.waitForLoaders());
-      }, { noWaitAfter: true });
+    // ads and cookies handling
+    await ads.blockAds();
+    await cookies.handleCookies();
+
+    //Locator handler to wait for the loading mask to disappear
+    await page.addLocatorHandler(page.locator('loading-mask'), async () => {
+      await page.waitForTimeout(1000);
+      await page.waitForLoadState("networkidle");
     });
 
-    homePage.navigateToHomePage();
+    // Navigate to the home page
+    await homePage.navigateToHomePage();
+    await homePage.verifyHomePage();
   });
 
+  // Iterate through each product in the products array
   for (const product of products) {
-    test(`Navigate menu items ${product.mainCategory} > ${product.category}, apply filters on product listing page and add item to the cart`, async ({ page }) => {
+    test(`Navigate menu items ${product.mainCategory} > ${product.category}, apply filters on product listing page and add item to the cart`,
+      async ({
+        // Page objects
+        navigation,
+        pageFilters,
+        productListing,
+        productDetailsPage,
+        basket,
+        checkoutShipping,
+        checkoutPayments,
+      }) => {
 
-      // Navigate to the product listing page
-      await homePage.clickNavigationMenuItem(product.mainCategory);
+        // Navigate to the product listing page
+        await navigation.clickNavigationMenuItem(product.mainCategory);
 
-      // Filter by the main category
-      await pageFilters.filterByMainCategory(product.category);
+        // Filter by the main category
+        await pageFilters.filterByMainCategory(product.category);
 
-      // Apply filters if they are defined for the product
-      await pageFilters.applyAllFilters(product.filters);
+        // Apply filters & verify that the filters are applied
+        await pageFilters.applyAndVerifyAllFilters(product.filters);
 
-      // Select a product from the product listing page
-      let productName = "";
-      productName = await productListing.selectAProduct(product.isRandomlySelected);
+        // Select a product from the product listing page
+        const productName = await productListing.selectAProduct(product.isRandomlySelected);
 
-      // Verify that the correct product page is opened
-      await productDetailsPage.verifyCorrectProductPageOpened(productName);
+        // Verify that the correct product page is opened
+        await productDetailsPage.verifyCorrectProductPageOpened(productName);
 
-      await productDetailsPage.selectAllProductVariants(product.filters ?? []);
+        // Select all product variants if they are defined
+        await productDetailsPage.selectAllProductVariants(product.filters ?? []);
 
+        // Set the product quantity
+        await productDetailsPage.setProductQuantity(product.quantity);
 
+        // Get the product price
+        const productPrice = await productDetailsPage.getProductPrice();
 
-      await productDetailsPage.setProductQuantity(product.quantity);
+        // Add the product to the cart
+        await productDetailsPage.addProductToCart();
 
+        // Verify that the product is added to the cart
+        await basket.verifyBasketIconQuantity(product.quantity);
 
-      const productPrice = await productDetailsPage.getProductPrice();
+        // Verify that the product is added to the cart with correct details
+        await basket.verifyProductAddedToCart(product.quantity, productPrice, productName);
 
+        // Click the checkout button
+        await basket.clickCheckoutButton();
 
-      await productDetailsPage.addProductToCart();
+        // Verify that the shipping page is opened
+        await checkoutShipping.verifyShippingAddressFormIsDisplayed();
 
+        // Fill the shipping address and select the shipping method
+        const shippingAddress = checkoutShipping.generateRandomShippingAddress();
 
-      await basket.verifyBasketIconQuantity(product.quantity);
+        // Set the shipping address details
+        shippingAddress.country = product.shippingDestination;
+        await checkoutShipping.fillShippingAddress(shippingAddress);
 
+        // Select the shipping method and return the shipping costs
+        const shippingCosts = await checkoutShipping.selectShippingMethodandReturnCost(product.shippingMethod);
 
+        await checkoutShipping.clickNextButton();
 
-      await basket.verifyProductAddedToCart(product.quantity, productPrice, productName);
+        // Verify that the payments page is opened
+        await checkoutPayments.VerifyThePaymentsPageOpened();
 
+        const parsedQuantity = parseInt(product.quantity, 10);
+        // Verify the order total on the payments page
+        await checkoutPayments.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts);
 
+        // Apply the discount code
+        await checkoutPayments.applyDiscount(product.discountCode)
 
-      await basket.clickCheckoutButton();
-
-
-
-      await loader.waitForLoaders();
-      await shippingPage.verifyShippingAddressFormIsDisplayed();
-
-
-      const shippingAddress = shippingPage.generateRandomShippingAddress();
-      shippingAddress.country = product.shippingDestination;
-      await shippingPage.fillShippingAddress(shippingAddress);
-
-
-      let shippingCosts = 0;
-
-      shippingCosts = await shippingPage.selectShippingMethodandReturnCost(product.shippingMethod);
-
-
-      await shippingPage.clickNextButton();
-      await loader.waitForLoaders();
-      await paymentsPage.VerifyThePaymentsPageOpened();
-
-      let parsedQuantity = 0
-
-      parsedQuantity = parseInt(product.quantity, 10);
-      await paymentsPage.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts);
-
-
-      await paymentsPage.applyDiscount(product.discountCode)
-      await paymentsPage.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts, product.discountRate);
-    });
+        // Verify the order total after applying the discount code
+        await checkoutPayments.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts, product.discountRate);
+      });
   }
 });

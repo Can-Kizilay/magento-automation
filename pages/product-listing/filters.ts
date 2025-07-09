@@ -37,12 +37,10 @@ export class Filters {
     }
   }
 
-  async applyAllFilters(filters: Filter[]) {
+  async applyAndVerifyAllFilters(filters: Filter[]) {
     for (const filter of filters) {
       await this.filterBy(filter.name, filter.value);
-      if (filter.isProductVariant) {
-        await this.verifyFilterAppliedOnFilterList(filter.name, filter.value);
-      }
+      await this.verifyFilterAppliedOnFilterList(filter.name, filter.value);
     }
   };
 
