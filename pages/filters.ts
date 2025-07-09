@@ -14,6 +14,7 @@ export class Filters {
   readonly mobileFilterButton: Locator;
   readonly currentFiltersMobile: Locator;
   readonly pageviewPort: number;
+  readonly isMobileView: boolean;
 
   constructor(page: Page) {
     this.page = page;
@@ -23,6 +24,8 @@ export class Filters {
     this.mobileFilterButton = this.page.getByRole('tab', { name: 'Shop By' });
     this.pageviewPort = this.page.viewportSize()?.width ?? 1980;
     this.currentFiltersMobile = this.page.getByRole('tab', { name: 'Now Shopping by' });
+    this.isMobileView = this.pageviewPort !== undefined && this.pageviewPort < 768;
+
   }
 
   async filterByMainCategory(categoryName: string) {
@@ -31,21 +34,24 @@ export class Filters {
       await this.page.getByRole('menuitem', { name: categoryName }).click()
     } else {
       await this.categoryFilter.getByText(categoryName, { exact: true }).click();
-
     }
-
   }
 
-  getFilterName(filterName: string) {
-    return this.page.getByRole("tab", { name: filterName });
-  }
+  async applyAllFilters(filters: Filter[]) {
+    for (const filter of filters) {
+      await this.filterBy(filter.name, filter.value);
+      if (filter.isProductVariant) {
+        await this.verifyFilterAppliedOnFilterList(filter.name, filter.value);
+      }
+    }
+  };
+
 
   async filterBy(filterName: string, filterValue: string) {
-    const filter = this.getFilterName(filterName);
+    const filter = this.page.getByRole("tab", { name: filterName });
     const fitlers = this.filterGroup.filter({ has: filter });
 
-
-    if (this.pageviewPort && this.pageviewPort < 768) {
+    if (this.isMobileView) {
       await this.mobileFilterButton.click() // Click filter button before applying filters on mobile
     }
     await filter.click();

@@ -1,6 +1,7 @@
 import { expect, Locator, Page } from "@playwright/test";
+import { test } from "./handle-pages";
 
-export class PageNavigation {
+export class HomePage {
   readonly page: Page;
   readonly navigationMenuItem: Locator;
   readonly categoryFilter: Locator;
@@ -15,11 +16,16 @@ export class PageNavigation {
     this.mobileMenu = this.page.getByRole('tab', { name: 'Menu' });
 
   }
-  s
-  async clickMainMenuItem(itemName: string) {
-    await this.page.waitForLoadState('networkidle')
+  async navigateToHomePage() {
+    await this.page.goto("/");
+  }
+
+  async clickNavigationMenuItem(itemName: string) {
+    await this.page.waitForLoadState('networkidle'); // Mobile menu might not be clickable immediately
+
+    // Check if the page opened in mobile view
     if (await this.mobileMenuHamburger.isVisible()) {
-      await this.mobileMenuHamburger.click({ delay: 1000 }); // delay added to avoid flaky tests
+      await this.mobileMenuHamburger.click({ delay: 1000 }); // Delay added to avoid flaky tests
       await expect(this.mobileMenu).toBeVisible();
     }
     await this.navigationMenuItem

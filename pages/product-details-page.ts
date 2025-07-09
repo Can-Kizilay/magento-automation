@@ -1,5 +1,7 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { Loader } from "../helpers/loader";
+import { test } from "./handle-pages";
+import { Filter } from "./filters";
 
 export class ProductDetailsPage {
   readonly page: Page;
@@ -19,18 +21,33 @@ export class ProductDetailsPage {
   }
 
   async verifyCorrectProductPageOpened(productName: string) {
-    await this.loader.waitForLoaders()
-    await expect(this.productTitle).toBeVisible();
-    await expect(this.productTitle).toHaveText(productName);
-    await expect(this.addToCartButton).toBeVisible(); // Ensure the button is visible before clicking
-    await expect(this.addToCartButton).toBeEnabled(); // Ensure the button is enabled before clicking
+    await test.step(`Verify product details page is opened for ${productName}`, async () => {
+      await this.loader.waitForLoaders()
+      await expect(this.productTitle).toBeVisible();
+      await expect(this.productTitle).toHaveText(productName);
+      await expect(this.addToCartButton).toBeVisible(); // Ensure the button is visible before clicking
+      await expect(this.addToCartButton).toBeEnabled(); // Ensure the button is enabled before clicking
+    })
+  }
+
+
+  async selectAllProductVariants(productFilters: Filter[]) {
+    await test.step(`Select product variants applied in filters.`, async () => {
+      for (const filter of productFilters) {
+        if (filter.isProductVariant) {
+          await this.selectProductVariant(filter.value);
+        }
+      }
+    });
   }
 
   async selectProductVariant(variantValue: string) {
-    const variantToSelect = this.page.getByRole('option', { name: variantValue })
+    await test.step(`Select product variant if applicable`, async () => {
+      const variantToSelect = this.page.getByRole('option', { name: variantValue })
 
-    await expect(variantToSelect).toBeVisible();
-    await variantToSelect.click();
+      await expect(variantToSelect).toBeVisible();
+      await variantToSelect.click();
+    })
   }
 
   async setProductQuantity(quantity: string) {
