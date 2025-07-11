@@ -1,37 +1,37 @@
 import { expect, Locator, Page } from "@playwright/test";
-
-export interface Filter {
-  name: string;
-  value: string;
-  isProductVariant?: boolean;
-}
+import { Filter } from "../../interfaces/filter";
+import { test } from "../../fixtures/page-objects";
 
 export class Filters {
   readonly page: Page;
   readonly categoryFilter: Locator;
   readonly filterGroup: Locator;
+  readonly filterLabel: Locator;
+  readonly filterValue: Locator;
   readonly currentFitlers: Locator;
   readonly mobileFilterButton: Locator;
   readonly currentFiltersMobile: Locator;
   readonly pageviewPort: number;
-  readonly isMobileView: boolean;
+  readonly isMobile: boolean;
 
-  constructor(page: Page) {
+  constructor(page: Page, isMobile: boolean = false) {
     this.page = page;
+    this.isMobile = isMobile;
     this.categoryFilter = this.page.locator(".options");
     this.filterGroup = this.page.locator(".filter-options-item");
     this.currentFitlers = this.page.locator(".filter-current");
     this.mobileFilterButton = this.page.getByRole('tab', { name: 'Shop By' });
     this.pageviewPort = this.page.viewportSize()?.width ?? 1980;
     this.currentFiltersMobile = this.page.getByRole('tab', { name: 'Now Shopping by' });
-    this.isMobileView = this.pageviewPort !== undefined && this.pageviewPort < 768;
-
+    this.filterLabel = this.page.locator(".filter-label");
+    this.filterValue = this.page.locator(".filter-value");
   }
 
   async filterByMainCategory(categoryName: string) {
     const mobileMenuItem = this.page.getByRole('menuitem', { name: categoryName });
-    if (await mobileMenuItem.isVisible()) {
-      await this.page.getByRole('menuitem', { name: categoryName }).click()
+    // Check if the page opened in mobile view
+    if (this.isMobile) {
+      await mobileMenuItem.click()
     } else {
       await this.categoryFilter.getByText(categoryName, { exact: true }).click();
     }
@@ -44,27 +44,27 @@ export class Filters {
     }
   };
 
-
   async filterBy(filterName: string, filterValue: string) {
     const filter = this.page.getByRole("tab", { name: filterName });
-    const fitlers = this.filterGroup.filter({ has: filter });
+    const selectedFilter = this.filterGroup.filter({ has: filter });
 
-    if (this.isMobileView) {
+    if (this.isMobile) {
       await this.mobileFilterButton.click() // Click filter button before applying filters on mobile
     }
     await filter.click();
     if (filterName.toLowerCase() === "color") {
-      await fitlers.getByLabel(filterValue).locator("div").click();
+      await selectedFilter.getByLabel(filterValue).locator("div").click();
     } else {
-      await fitlers.getByText(filterValue).click();
+      await selectedFilter.getByText(filterValue).click();
     }
   }
 
   async verifyFilterAppliedOnFilterList(filterName: string, filterValue: string) {
 
-    await expect(this.currentFiltersMobile).toBeEnabled();
-    await this.currentFiltersMobile.click();
-    await expect(this.currentFitlers.locator(".filter-label").getByText(filterName)).toBeVisible();
-    await expect(this.currentFitlers.locator(".filter-value").getByText(filterValue)).toBeVisible();
+    if (this.isMobile) {
+      await this.currentFiltersMobile.click();
+    }
+    await expect(this.currentFitlers.locator(this.filterLabel).getByText(filterName)).toBeVisible();
+    await expect(this.currentFitlers.locator(this.filterValue).getByText(filterValue)).toBeVisible();
   }
 }

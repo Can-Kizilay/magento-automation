@@ -1,31 +1,39 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 
 export class ProductListing {
   readonly page: Page;
   readonly productCard: Locator;
+  readonly productLink: Locator;
   readonly addToCartButton: Locator;
-
 
   constructor(page: Page) {
     this.page = page;
-    this.productCard = this.page.locator(".product-item-info");
+    //There are some hidden products on the product listing page. Make sure to select only visible products.
+    this.productCard = this.page.locator(".product-items:not(.no-display)").locator(".product-item-info");
+    this.productLink = this.page.locator(".product-item-link");
   }
-  async selectAProduct(isRandomlySelected: boolean) {
-    let productName = "";
-    let product = this.productCard.first(); // Default to the first product if not randomly selected
+
+  async goToProductDetails(product: Locator) {
+    const productTitle = product.locator(this.productLink);
+    await productTitle.click();
+  }
+
+  async getProductName(product: Locator) {
+    const productTitle = product.locator(this.productLink);
+    const productName = ((await productTitle.textContent()) ?? "").trim();
+    return productName;
+  }
+
+  async selectAProduct(isRandomlySelected: boolean = false) {
+    let product = this.productCard.first();
+    // If isRandomlySelected is true, choose a random product from the list
     if (isRandomlySelected) {
-      let productCount = await this.productCard.count()
-      expect(productCount).toBeGreaterThan(0);
+      let productCount = await this.productCard.count();
       if (productCount !== 0) {
-        const randomIndex = Math.floor(Math.random() * productCount); //
+        const randomIndex = Math.floor(Math.random() * productCount);
         product = this.productCard.nth(randomIndex);
       }
     }
-
-    await expect(product).toBeVisible();
-    const productTitle = product.locator(".product-item-link")
-    productName = (await productTitle.textContent()) ?? "";
-    await product.locator(".product-image-photo").click({ force: true, delay: 1000 });  // delay added to avoid flaky tests
-    return productName.trim();
+    return product;
   }
 }

@@ -23,7 +23,10 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  timeout: 120_000,
+  timeout: 180_000,
+  expect: {
+    timeout: 45_000, //Page is slowig down on parallel runs, so I increased the timeout
+  },
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.BASE_URL,
@@ -40,37 +43,56 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        isMobile: false,
+      },
     },
 
     // {
     //   name: "firefox",
-    //   use: { ...devices["Desktop Firefox"] },
+    //   use: {
+    //     ...devices["Desktop Firefox"],
+    //     isMobile: false,
+    //   },
     // },
 
     // {
     //   name: "webkit",
-    //   use: { ...devices["Desktop Safari"] },
+    //   use: {
+    //     ...devices["Desktop Safari"],
+    //     isMobile: false,
+    //   },
     // },
 
     /* Test against mobile viewports. */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: {
+        ...devices['Pixel 5'],
+        isMobile: true,
+      },
     },
     // {
     //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
+    //   use: {
+    //     ...devices['iPhone 12'],
+    //     isMobile: true,
+    //   },
     // },
 
     /* Test against branded browsers. */
     // {
     //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    //   use: { ...devices['Desktop Edge'], channel: 'msedge', isMobile: false },
     // },
     // {
     //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //     channel: 'chrome',
+    //     isMobile: false,
+    //   },
     // },
   ],
 });

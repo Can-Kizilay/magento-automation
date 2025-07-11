@@ -32,8 +32,8 @@ export const test = base.extend<PageList>({
         await use(new HomePage(page));
     },
 
-    navigation: async ({ page }, use) => {
-        await use(new Navigation(page));
+    navigation: async ({ page, isMobile }, use) => {
+        await use(new Navigation(page, isMobile));
     },
 
     basket: async ({ page }, use) => {
@@ -48,8 +48,8 @@ export const test = base.extend<PageList>({
         await use(new ShippingPage(page));
     },
 
-    pageFilters: async ({ page }, use) => {
-        await use(new Filters(page));
+    pageFilters: async ({ page, isMobile }, use) => {
+        await use(new Filters(page, isMobile));
     },
 
     productDetailsPage: async ({ page }, use) => {
@@ -70,6 +70,6 @@ export const test = base.extend<PageList>({
 
     shippingPage: async ({ page }, use) => {
         await use(new ShippingPage(page));
-    }
+    },
 });
 export { expect } from '@playwright/test';

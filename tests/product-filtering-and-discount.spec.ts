@@ -1,18 +1,6 @@
-import { Filter } from "../pages/product-listing/filters";
 import { products } from "../test-data/products.json";
 import { test } from '../fixtures/page-objects';
-
-export interface Product {
-  mainCategory: string;
-  category: string;
-  filters: Filter[];
-  isRandomlySelected: boolean;
-  quantity: string;
-  discountCode: string;
-  shippingDestination: string;
-  shippingMethod: string;
-}
-
+import { Product } from "../interfaces/product";
 
 test.describe("Product filtering and checkout with applying discount", () => {
   test.beforeEach("Test setup", async ({ page, ads, cookies, homePage }) => {
@@ -22,21 +10,23 @@ test.describe("Product filtering and checkout with applying discount", () => {
     await cookies.handleCookies();
 
     //Locator handler to wait for the loading mask to disappear
-    await page.addLocatorHandler(page.locator('loading-mask'), async () => {
-      await page.waitForTimeout(1000);
+    await page.addLocatorHandler(page.locator('.loading-mask').first(), async () => {
       await page.waitForLoadState("networkidle");
     });
 
     // Navigate to the home page
     await homePage.navigateToHomePage();
-    await homePage.verifyHomePage();
+    await homePage.verifyPageTitle("Home Page");
   });
 
   // Iterate through each product in the products array
-  for (const product of products) {
+  const productList: Product[] = products;
+
+  for (const product of productList) {
     test(`Navigate menu items ${product.mainCategory} > ${product.category}, apply filters on product listing page and add item to the cart`,
       async ({
         // Page objects
+        homePage,
         navigation,
         pageFilters,
         productListing,
@@ -44,71 +34,102 @@ test.describe("Product filtering and checkout with applying discount", () => {
         basket,
         checkoutShipping,
         checkoutPayments,
+        isMobile
       }) => {
 
-        // Navigate to the product listing page
-        await navigation.clickNavigationMenuItem(product.mainCategory);
+        await test.step(`Navigate to the product listing page: ${product.mainCategory} > ${product.category}`, async () => {
+          await navigation.clickNavigationMenuItem(product.mainCategory);
+          if (!isMobile) {
+            //This step is needed only for desktop view
+            await homePage.verifyPageTitle(product.mainCategory);
+          }
+          await pageFilters.filterByMainCategory(product.category);
+          await homePage.verifyPageTitle(product.category);
+        });
 
-        // Filter by the main category
-        await pageFilters.filterByMainCategory(product.category);
+        await test.step(`Apply filters`, async () => {
+          await pageFilters.applyAndVerifyAllFilters(product.filters);
+        });
 
-        // Apply filters & verify that the filters are applied
-        await pageFilters.applyAndVerifyAllFilters(product.filters);
+        let productName = ""
 
-        // Select a product from the product listing page
-        const productName = await productListing.selectAProduct(product.isRandomlySelected);
+        await test.step(`Open ${product.isRandomlySelected ? "a random" : " the first"} product.`, async () => {
+          const productCard = await productListing.selectAProduct(product.isRandomlySelected);
+          productName = await productListing.getProductName(productCard);
+          await productListing.goToProductDetails(productCard);
+        });
 
-        // Verify that the correct product page is opened
-        await productDetailsPage.verifyCorrectProductPageOpened(productName);
+        await test.step(`Verify product details page is opened for the product: ${productName}`, async () => {
+          await productDetailsPage.verifyCorrectProductPageOpened(productName);
+        });
 
-        // Select all product variants if they are defined
-        await productDetailsPage.selectAllProductVariants(product.filters ?? []);
+        await test.step(`Select product variants applied in filters.`, async () => {
+          await productDetailsPage.selectAllProductVariants(product.filters ?? []);
+        })
 
-        // Set the product quantity
-        await productDetailsPage.setProductQuantity(product.quantity);
+        await test.step(`Set product quantity to ${product.quantity}`, async () => {
+          await productDetailsPage.setProductQuantity(product.quantity);
+        });
 
-        // Get the product price
-        const productPrice = await productDetailsPage.getProductPrice();
+        let productPrice = 0;
+        await test.step(`Get product price`, async () => {
+          productPrice = await productDetailsPage.getProductPrice();
+        });
 
-        // Add the product to the cart
-        await productDetailsPage.addProductToCart();
+        await test.step(`Add ${product.quantity} product to the cart`, async () => {
+          await productDetailsPage.addProductToCart();
+        });
 
-        // Verify that the product is added to the cart
-        await basket.verifyBasketIconQuantity(product.quantity);
+        await test.step(`Verify basket icon quantity is ${product.quantity}`, async () => {
+          await basket.verifyBasketIconQuantity(product.quantity);
+        });
 
-        // Verify that the product is added to the cart with correct details
-        await basket.verifyProductAddedToCart(product.quantity, productPrice, productName);
+        await test.step(`Click basket icon and verify product is added to the cart`, async () => {
+          await basket.verifyProductAddedToCart(product.quantity, productPrice, productName);
+        })
 
-        // Click the checkout button
-        await basket.clickCheckoutButton();
+        await test.step(`Proceed to checkout`, async () => {
+          await basket.clickCheckoutButton();
+        });
 
-        // Verify that the shipping page is opened
-        await checkoutShipping.verifyShippingAddressFormIsDisplayed();
+        await test.step(`Verify shipping address form is displayed`, async () => {
+          await checkoutShipping.verifyShippingAddressFormIsDisplayed();
+        });
 
-        // Fill the shipping address and select the shipping method
-        const shippingAddress = checkoutShipping.generateRandomShippingAddress();
+        await test.step(`Fill shipping address with random values ans select the shipping destination ${product.shippingDestination}`, async () => {
+          const shippingAddress = checkoutShipping.generateRandomShippingAddress();
 
-        // Set the shipping address details
-        shippingAddress.country = product.shippingDestination;
-        await checkoutShipping.fillShippingAddress(shippingAddress);
+          // Set the shipping country
+          shippingAddress.country = product.shippingDestination;
+          await checkoutShipping.fillShippingAddress(shippingAddress);
+        });
 
-        // Select the shipping method and return the shipping costs
-        const shippingCosts = await checkoutShipping.selectShippingMethodandReturnCost(product.shippingMethod);
+        let shippingCosts = 0;
 
-        await checkoutShipping.clickNextButton();
+        await test.step(`Select shipping method and return the shipping costs`, async () => {
+          await checkoutShipping.selectShippingMethod(product.shippingMethod);
+          shippingCosts = await checkoutShipping.getShippingCost(product.shippingMethod);
+        });
 
-        // Verify that the payments page is opened
-        await checkoutPayments.VerifyThePaymentsPageOpened();
+        await test.step(`Click next button and verify the Review and Payments page is opened`, async () => {
+          await checkoutShipping.clickNextButton();
+          await checkoutPayments.VerifyThePaymentsPageOpened();
+        });
 
         const parsedQuantity = parseInt(product.quantity, 10);
-        // Verify the order total on the payments page
-        await checkoutPayments.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts);
 
-        // Apply the discount code
-        await checkoutPayments.applyDiscount(product.discountCode)
+        await test.step(`Verify that the order total cost is correct`, async () => {
+          await checkoutPayments.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts);
+        });
 
-        // Verify the order total after applying the discount code
-        await checkoutPayments.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts, product.discountRate);
+        await test.step(`Apply the discount code: ${product.discountCode} and verify the discounted price`, async () => {
+          await checkoutPayments.applyDiscount(product.discountCode)
+        });
+
+        await test.step(`Verify the order total after applying the discount code`, async () => {
+          await checkoutPayments.verifyOrderTotal(productPrice, parsedQuantity, shippingCosts, product.discountRate);
+        });
+
       });
   }
 });

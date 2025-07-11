@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@playwright/test";
+import test, { expect, Locator, Page } from "@playwright/test";
 
 export class HomePage {
   readonly page: Page;
@@ -13,7 +13,7 @@ export class HomePage {
     await this.page.goto("/");
   }
 
-  async verifyHomePage() {
-    await expect(this.homePageTitle).toHaveText('Home Page');
+  async verifyPageTitle(title: string) {
+    await expect(this.homePageTitle).toHaveText(title);
   }
 }

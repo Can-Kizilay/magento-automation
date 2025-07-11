@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import { test } from "../../fixtures/page-objects";
 
 export class Basket {
     readonly page: Page;
@@ -22,9 +23,8 @@ export class Basket {
     }
 
     async verifyBasketIconQuantity(quantity: string) {
-
-        await expect(this.basketIconCounter).toBeEnabled();
-        await expect(this.basketIconCounter).toContainText(quantity); // Ensure the cart icon counter reflects the added quantity
+        await expect(this.basketIconCounter).toBeVisible();
+        await expect(this.basketIconCounter).toContainText(quantity);
     }
 
 

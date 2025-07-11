@@ -34,6 +34,7 @@ export class ShippingPage {
     readonly shippingMethodTable: Locator;
     readonly checkoutShippingLoaded: Locator;
     readonly nextButton: Locator;
+    readonly shippingCost: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -53,6 +54,7 @@ export class ShippingPage {
         this.telephoneInput = this.page.getByRole('textbox', { name: 'Phone Number *' })
         this.checkoutShippingLoaded = this.page.locator('#checkout-shipping-method-load')
         this.nextButton = this.page.getByRole('button', { name: 'Next' })
+        this.shippingCost = this.page.locator(".col-price")
 
     }
 
@@ -73,6 +75,7 @@ export class ShippingPage {
     }
 
     async verifyShippingAddressFormIsDisplayed() {
+        await this.page.waitForLoadState('networkidle');
         await expect(this.shippingAddressForm).toBeVisible();
     }
 
@@ -93,11 +96,14 @@ export class ShippingPage {
         await this.telephoneInput.fill(formData.telephone);
     }
 
-    async selectShippingMethodandReturnCost(methodName: string) {
+    async selectShippingMethod(methodName: string) {
         await this.checkoutShippingLoaded.waitFor({ state: "visible" })
         const shippingMethod = this.page.getByRole('radio', { name: methodName })
         await shippingMethod.click();
-        const shippingCostResult = this.checkoutShippingLoaded.locator(".row").filter({ hasText: methodName }).locator(".col-price")
+    }
+
+    async getShippingCost(methodName: string) {
+        const shippingCostResult = this.checkoutShippingLoaded.locator(".row").filter({ hasText: methodName }).locator(this.shippingCost)
 
         const costText = await shippingCostResult.textContent();
         const cost = parseFloat(costText ? costText.replace("$", "").trim() : "");

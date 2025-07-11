@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { Filter } from "../product-listing/filters";
+import { Filter } from "../../interfaces/filter";
 
 export class ProductDetailsPage {
   readonly page: Page;
@@ -17,11 +17,9 @@ export class ProductDetailsPage {
   }
 
   async verifyCorrectProductPageOpened(productName: string) {
-
-    await expect(this.productTitle).toBeVisible();
     await expect(this.productTitle).toHaveText(productName);
     await expect(this.addToCartButton).toBeVisible(); // Ensure the button is visible before clicking
-    await expect(this.addToCartButton).toBeEnabled(); // Ensure the button is enabled before clicking
+    await expect(this.addToCartButton).toBeEnabled();
   }
 
 

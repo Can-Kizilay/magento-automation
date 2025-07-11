@@ -1,12 +1,8 @@
 import { BrowserContext } from "@playwright/test";
 import { cookies } from "../test-data/cookies.json";
+import { Cookie } from "../interfaces/cookie";
 
-interface Cookie {
-  name: string;
-  value: string;
-  domain?: string;
-  path?: string;
-}
+
 
 const cookieData: Cookie[] = cookies
 
